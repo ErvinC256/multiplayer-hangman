@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class PlayerRegistry {
@@ -43,9 +42,17 @@ public class PlayerRegistry {
         System.out.println();
     }
 
-    private boolean isPlayerRegistered(String name) {
+    public boolean isPlayerRegistered(String name) {
 
         return players.stream().anyMatch(player -> player.getName().equals(name));
+    }
+
+    public Player getPlayer(int playerId) {
+
+        return players.stream()
+                .filter(player -> player.getId() == playerId)
+                .findFirst()
+                .orElse(null);
     }
 
     // getters setters

@@ -123,15 +123,38 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 
 		System.out.println("Guessing game has started : ");
 		System.out.println("Let's begin...");
-		Set<Player> playersToBeAssigned = playerRegistry.getPlayers();
 
-		for (int i = 0; i < playersToBeAssigned.size(); i++) {
+		Set<Player> playersToBeAssigned = playerRegistry.getPlayers();
+		int numPlayersToBeAssigned = playersToBeAssigned.size();
+
+		for (int i = 0; i < numPlayersToBeAssigned; i++) {
+
+			System.out.print("Players currently in queue : ");
+			for (Player player : playerQueue) {
+
+				System.out.print(player.getId() + ". " + player.getName() + "  ");
+			}
+
+			System.out.println();
+
+			System.out.print("Players currently not in queue : ");
+			for (Player player : playersToBeAssigned) {
+				System.out.print(player.getId() + ". " + player.getName() + "  ");
+			}
+
+			System.out.println();
+			System.out.println("Choose a player index : ");
+			int id = Integer.parseInt(scanner.nextLine());
+
+			Player player = playerRegistry.getPlayer(id);
+			playersToBeAssigned.remove(player);
+			playerQueue.offer(player);
 
 		}
 
-		do {
-			playerRegistry.getPlayers().forEach(player -> playRound(player));
-		} while (!someoneHasGuessedIt);
+//		do {
+//			playerRegistry.getPlayers().forEach(player -> playRound(player));
+//		} while (!someoneHasGuessedIt);
 
 	}
 
