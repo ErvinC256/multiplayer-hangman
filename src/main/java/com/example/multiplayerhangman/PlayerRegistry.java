@@ -3,14 +3,15 @@ package com.example.multiplayerhangman;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PlayerRegistry {
 
     private final Logger log = LoggerFactory.getLogger(PlayerRegistry.class);
 
-    private List<Player> players = new ArrayList<>();
+    private Set<Player> players = new HashSet<>();
     private int playerIndex = 0;
 
     public boolean registerPlayer(String name) {
@@ -37,7 +38,9 @@ public class PlayerRegistry {
 
     public void displayPlayerNames() {
 
-        players.forEach(player -> System.out.println(String.valueOf(player.getId()) + ". " + player.getName() + " "));
+        System.out.print("Registered Players: ");
+        players.forEach(player -> System.out.print(String.valueOf(player.getId()) + ". " + player.getName() + "  "));
+        System.out.println();
     }
 
     private boolean isPlayerRegistered(String name) {
@@ -45,12 +48,21 @@ public class PlayerRegistry {
         return players.stream().anyMatch(player -> player.getName().equals(name));
     }
 
-    public List<Player> getPlayers() {
+    // getters setters
+    public Set<Player> getPlayers() {
         return players;
+    }
+
+    public void setPlayers(Set<Player> players) {
+        this.players = players;
     }
 
     public int getPlayerIndex() {
         return playerIndex;
+    }
+
+    public void setPlayerIndex(int playerIndex) {
+        this.playerIndex = playerIndex;
     }
 }
 
