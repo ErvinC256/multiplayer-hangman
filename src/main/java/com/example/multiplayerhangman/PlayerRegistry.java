@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 public class PlayerRegistry {
@@ -16,29 +17,40 @@ public class PlayerRegistry {
     public boolean registerPlayer(String name) {
 
         if (isPlayerRegistered(name)) {
-            log.error("Player '{}' is already registered with registry.", name);
+
             return false;
         }
 
         Player player = new Player(name);
         player.setId(this.playerIndex);
         players.add(player);
-        log.info("Player '{}' registered successfully with registry.", name);
 
         playerIndex++;
         return true;
     }
 
-    public void unregisterPlayer(int playerIndex) {
+    public boolean unregisterPlayer(int playerId) {
 
-        players.remove(playerIndex);
-        log.info("Player '{}' un-registered successfully with registry.", playerIndex);
+        Optional<Player> playerOptional = players.stream()
+                                                .filter(player -> player.getId() == playerId)
+                                                .findFirst();
+        if (playerOptional.isPresent()) {
+            players.remove(playerOptional.get());
+            return true;
+        }
+
+        return false;
     }
 
     public void displayPlayerNames() {
 
         System.out.print("Registered Players: ");
-        players.forEach(player -> System.out.print(String.valueOf(player.getId()) + ". " + player.getName() + "  "));
+        if (players.isEmpty()) {
+            System.out.print("---");
+        } else {
+            players.forEach(player -> System.out.print(String.valueOf(player.getId()) + ". " + player.getName() + "  "));
+        }
+
         System.out.println();
     }
 

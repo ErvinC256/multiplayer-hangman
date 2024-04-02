@@ -93,15 +93,21 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 						break;
 					}
 					boolean registered = playerRegistry.registerPlayer(name);
+
+					if (registered) {
+						logger.info("Player '{}' registered successfully with registry.", name);
+					} else {
+						logger.info("Player '{}' not registered.", name);
+					}
 					option = -1;
 					break;
 				case 2:
-					System.out.println("Enter a player index to be deleted:");
+					System.out.println("Enter a player id to be deleted:");
 					playerRegistry.displayPlayerNames();
 
 					try {
-						int playerIndex = Integer.parseInt(scanner.nextLine());
-						playerRegistry.unregisterPlayer(playerIndex);
+						int playerId= Integer.parseInt(scanner.nextLine());
+						playerRegistry.unregisterPlayer(playerId);
 						option = -1;
 						break;
 					} catch (NumberFormatException e) {
