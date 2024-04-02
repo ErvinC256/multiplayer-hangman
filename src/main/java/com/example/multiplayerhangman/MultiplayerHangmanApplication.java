@@ -17,6 +17,7 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 	private final PlayerRegistry playerRegistry = new PlayerRegistry();
 	private static final int ANSWER = 52;
 	private boolean someoneHasGuessedIt = false;
+	private final TurnManager turnManager = new TurnManager();
 
 	public static void main(String[] args) {
 		SpringApplication.run(MultiplayerHangmanApplication.class, args);
@@ -97,10 +98,17 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 				case 2:
 					System.out.println("Enter a player index to be deleted:");
 					playerRegistry.displayPlayerNames();
-					int playerIndex = Integer.parseInt(scanner.nextLine());
-					playerRegistry.unregisterPlayer(playerIndex);
-					option = -1;
-					break;
+
+					try {
+						int playerIndex = Integer.parseInt(scanner.nextLine());
+						playerRegistry.unregisterPlayer(playerIndex);
+						option = -1;
+						break;
+					} catch (NumberFormatException e) {
+						logger.error("Invalid input. Please enter a valid option.");
+						option = -1;
+						break;
+					}
 				case 3:
 					playerRegistry.displayPlayerNames();
 					option = -1;
@@ -128,33 +136,26 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 		int numPlayersToBeAssigned = playersToBeAssigned.size();
 
 		for (int i = 0; i < numPlayersToBeAssigned; i++) {
-
-			System.out.print("Players currently in queue : ");
-			for (Player player : playerQueue) {
-
-				System.out.print(player.getId() + ". " + player.getName() + "  ");
-			}
-
-			System.out.println();
+			turnManager.displayPlayersInQueue();
 
 			System.out.print("Players currently not in queue : ");
 			for (Player player : playersToBeAssigned) {
 				System.out.print(player.getId() + ". " + player.getName() + "  ");
 			}
-
 			System.out.println();
-			System.out.println("Choose a player index : ");
+
+			System.out.print("Choose a player index : ");
 			int id = Integer.parseInt(scanner.nextLine());
 
 			Player player = playerRegistry.getPlayer(id);
 			playersToBeAssigned.remove(player);
-			playerQueue.offer(player);
+			turnManager.addPlayerToQueue(player);
 
 		}
 
-//		do {
-//			playerRegistry.getPlayers().forEach(player -> playRound(player));
-//		} while (!someoneHasGuessedIt);
+		turnManager.displayPlayersInQueue();
+
+		displayMainMenu();
 
 	}
 
