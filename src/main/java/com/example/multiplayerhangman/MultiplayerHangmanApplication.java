@@ -16,7 +16,7 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 
 	private final PlayerRegistry playerRegistry = new PlayerRegistry();
 	private static final int ANSWER = 52;
-	private boolean someoneHasGuessedIt = false;
+//	private boolean someoneHasGuessedIt = false;
 	private final TurnManager turnManager = new TurnManager();
 
 	public static void main(String[] args) {
@@ -86,7 +86,7 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 
 			switch (option) {
 				case 1:
-					System.out.println(String.format("Enter name for player %s, or enter -1 to cancel :  ", playerRegistry.getPlayerIndex()));
+					System.out.println(String.format("***Enter name for player %s, or enter -1 to cancel :  ", playerRegistry.getPlayerIndex()));
 					String name = scanner.nextLine();
 
 					if (name.equals("-1")) {
@@ -102,12 +102,18 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 					option = -1;
 					break;
 				case 2:
-					System.out.println("Enter a player id to be deleted:");
+					System.out.println("***Enter a player id to be deleted:");
 					playerRegistry.displayPlayerNames();
 
 					try {
-						int playerId= Integer.parseInt(scanner.nextLine());
-						playerRegistry.unregisterPlayer(playerId);
+						int playerId = Integer.parseInt(scanner.nextLine());
+						boolean unregistered = playerRegistry.unregisterPlayer(playerId);
+
+						if (unregistered) {
+							logger.info("Player '{}' un-registered successfully with registry.", playerId);
+						} else {
+							logger.info("Player '{}' not un-registered.", playerId);
+						}
 						option = -1;
 						break;
 					} catch (NumberFormatException e) {
@@ -133,11 +139,36 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 
 	private void startGame() {
 
-		Queue<Player> playerQueue = new LinkedList<>();
-
 		System.out.println("Guessing game has started : ");
 		System.out.println("Let's begin...");
 
+		assignPlayers();
+
+		Player firstPlayer = turnManager.getPlayerQueue().poll();
+		System.out.println(String.format("Please suggest a number, %s : ", firstPlayer.getName()));
+		int number = getValidInput();
+
+		boolean someoneHasGuessedIt = false;
+		int numRemainingPlayers = turnManager.getPlayerQueue().size();
+
+		for (int i = 0; i < numRemainingPlayers; i++) {
+			Player currentPlayer = turnManager.getPlayerQueue().poll();
+			System.out.println(String.format("Please guess a number, %s : ", currentPlayer.getName()));
+			int guess = getValidInput();
+
+			if (guess == number) {
+				someoneHasGuessedIt = true;
+				break;
+			}
+		}
+
+		if (someoneHasGuessedIt) {
+			System.out.println("Someone has guessed it!");
+		}
+	}
+
+	private void assignPlayers() {
+		Queue<Player> playerQueue = new LinkedList<>();
 		Set<Player> playersToBeAssigned = playerRegistry.getPlayers();
 		int numPlayersToBeAssigned = playersToBeAssigned.size();
 
@@ -159,10 +190,8 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 
 		}
 
+		System.out.println("Players after assignment :");
 		turnManager.displayPlayersInQueue();
-
-		displayMainMenu();
-
 	}
 
 	private void playRound(Player player) {
@@ -193,6 +222,16 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 			System.out.println(player.getName() + " has correct count of " + player.getCorrectCount()
 					+ " and wrong count of " + player.getWrongCount());
 		});
+	}
+
+	private int getValidInput() {
+		int input = Integer.MIN_VALUE;
+		try {
+			input = Integer.parseInt(scanner.nextLine());
+		} catch (NumberFormatException e) {
+			logger.error("Invalid input. Please enter a valid number.");
+		}
+		return input;
 	}
 
 	@Override
