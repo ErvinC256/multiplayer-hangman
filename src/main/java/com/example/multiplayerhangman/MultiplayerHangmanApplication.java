@@ -145,26 +145,31 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 		assignPlayers();
 
 		Player firstPlayer = turnManager.getPlayerQueue().poll();
-		System.out.println(String.format("Please suggest a number, %s : ", firstPlayer.getName()));
-		int number = getValidInput();
+		System.out.println(String.format("Please suggest a word, %s : ", firstPlayer.getName()));
+		String word = scanner.nextLine();
 
-		boolean someoneHasGuessedIt = false;
-		int numRemainingPlayers = turnManager.getPlayerQueue().size();
+		boolean wordHasBeenRevealed = false;
 
-		for (int i = 0; i < numRemainingPlayers; i++) {
+		while (!wordHasBeenRevealed) {
 			Player currentPlayer = turnManager.getPlayerQueue().poll();
 			System.out.println(String.format("Please guess a number, %s : ", currentPlayer.getName()));
-			int guess = getValidInput();
+			char character = scanner.nextLine().charAt(0);
 
-			if (guess == number) {
-				someoneHasGuessedIt = true;
-				break;
-			}
+			word = word.chars()
+					.mapToObj(c -> (char) c == character ? '#' : (char) c)
+					.collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
+					.toString();
+
+			System.out.println(word);
+
+			long numOfHash = word.chars().filter(c -> c == '#').count();
+
+			wordHasBeenRevealed = numOfHash == word.length();
+
+			turnManager.getPlayerQueue().offer(currentPlayer);
 		}
 
-		if (someoneHasGuessedIt) {
-			System.out.println("Someone has guessed it!");
-		}
+		System.out.println("The word has been revealed!");
 	}
 
 	private void assignPlayers() {
