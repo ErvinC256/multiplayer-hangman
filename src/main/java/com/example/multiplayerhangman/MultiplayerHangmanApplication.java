@@ -15,8 +15,6 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 	private final Scanner scanner = new Scanner(System.in);
 
 	private final PlayerRegistry playerRegistry = new PlayerRegistry();
-	private static final int ANSWER = 52;
-//	private boolean someoneHasGuessedIt = false;
 	private final TurnManager turnManager = new TurnManager();
 
 	public static void main(String[] args) {
@@ -29,9 +27,9 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 
 		do {
 			try {
-				System.out.println("-----------------------------");
+				System.out.println("-----------------------------------------");
 				System.out.println("Welcome to the Multi-player Hangman Game!");
-				System.out.println("-----------------------------");
+				System.out.println("-----------------------------------------");
 				System.out.println("1. Register/Un-Register Player");
 				System.out.println("2. Start Game");
 				System.out.println("3. Exit");
@@ -70,7 +68,7 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 
 		do {
 			try {
-				System.out.println("-----------------------------");
+				System.out.println("-------------------");
 				System.out.println("Player Registration");
 				System.out.println("1. Register Player");
 				System.out.println("2. Un-Register Player");
@@ -102,7 +100,7 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 					option = -1;
 					break;
 				case 2:
-					System.out.println("***Enter a player id to be deleted:");
+					System.out.println("***Enter a player id to be deleted :");
 					playerRegistry.displayPlayerNames();
 
 					try {
@@ -139,94 +137,76 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 
 	private void startGame() {
 
-		System.out.println("Guessing game has started : ");
-		System.out.println("Let's begin...");
+		System.out.println("-------------------------------");
+		System.out.println("---Guessing game has started---");
+		System.out.println("-------------------------------");
 
 		assignPlayers();
 
+		System.out.println("-------------------------------");
+
 		Player firstPlayer = turnManager.getPlayerQueue().poll();
-		System.out.println(String.format("Please suggest a word, %s : ", firstPlayer.getName()));
+		System.out.println(String.format("**Please suggest a word, %s : ", firstPlayer.getName()));
 		String word = scanner.nextLine();
 
 		boolean wordHasBeenRevealed = false;
 
 		while (!wordHasBeenRevealed) {
 			Player currentPlayer = turnManager.getPlayerQueue().poll();
-			System.out.println(String.format("Please guess a number, %s : ", currentPlayer.getName()));
+			System.out.println(String.format("**Please guess a number, %s : ", currentPlayer.getName()));
 			char character = scanner.nextLine().charAt(0);
 
-			word = word.chars()
-					.mapToObj(c -> (char) c == character ? '#' : (char) c)
-					.collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
-					.toString();
+			if (word.indexOf(character) != -1) {
+				word = word.chars()
+						.mapToObj(c -> (char) c == character ? '#' : (char) c)
+						.collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
+						.toString();
+				currentPlayer.incrementCorrectCount();
+			} else {
+				currentPlayer.incrementWrongCount();
+			}
 
 			System.out.println(word);
 
 			long numOfHash = word.chars().filter(c -> c == '#').count();
-
 			wordHasBeenRevealed = numOfHash == word.length();
 
 			turnManager.getPlayerQueue().offer(currentPlayer);
 		}
 
 		System.out.println("The word has been revealed!");
+
+		displayScoreBoard(turnManager.getPlayerQueue());
 	}
 
 	private void assignPlayers() {
-		Queue<Player> playerQueue = new LinkedList<>();
-		Set<Player> playersToBeAssigned = playerRegistry.getPlayers();
-		int numPlayersToBeAssigned = playersToBeAssigned.size();
+
+		int numPlayersToBeAssigned = playerRegistry.getPlayers().size();
+
+		playerRegistry.displayPlayerNames();
 
 		for (int i = 0; i < numPlayersToBeAssigned; i++) {
-			turnManager.displayPlayersInQueue();
 
-			System.out.print("Players currently not in queue : ");
-			for (Player player : playersToBeAssigned) {
-				System.out.print(player.getId() + ". " + player.getName() + "  ");
-			}
-			System.out.println();
-
-			System.out.print("Choose a player index : ");
+			System.out.print("**Choose a player index : ");
 			int id = Integer.parseInt(scanner.nextLine());
 
 			Player player = playerRegistry.getPlayer(id);
-			playersToBeAssigned.remove(player);
 			turnManager.addPlayerToQueue(player);
-
 		}
 
-		System.out.println("Players after assignment :");
 		turnManager.displayPlayersInQueue();
 	}
 
-	private void playRound(Player player) {
-
-		int guess = -1;
-
-		try {
-			System.out.println("Enter your guess, " + player.getName() + " : ");
-			guess = Integer.parseInt(scanner.nextLine());
-		} catch (NumberFormatException e) {
-			logger.error("Invalid input. Please enter a valid option.");
-		}
-
-		if (guess == ANSWER) {
-			player.incrementCorrectCount();
-			displayScoreBoard();
-			System.exit(0);
-		} else {
-			player.incrementWrongCount();
-			System.out.println("Incorrect guess. Try again next round.");
-		}
-	}
-
-	private void displayScoreBoard() {
+	private void displayScoreBoard(Queue<Player> playerQueue) {
 		System.out.println("***ScoreBoard***");
 
-		playerRegistry.getPlayers().forEach(player -> {
+		int queueSize = playerQueue.size();
+
+		for (int i = 0; i < queueSize; i++) {
+			Player player = playerQueue.poll();
 			System.out.println(player.getName() + " has correct count of " + player.getCorrectCount()
 					+ " and wrong count of " + player.getWrongCount());
-		});
+		}
 	}
 
 	private int getValidInput() {

@@ -45,7 +45,8 @@ public class PlayerRegistry {
 
     public void displayPlayerNames() {
 
-        System.out.print("Registered Players: ");
+        System.out.println("Registered players : ");
+
         if (players.isEmpty()) {
             System.out.print("---");
         } else {
@@ -53,7 +54,6 @@ public class PlayerRegistry {
                     .sorted(Comparator.comparing(player -> player.getId()))
                     .forEach(player -> System.out.print(String.valueOf(player.getId()) + ". " + player.getName() + "  "));
         }
-
         System.out.println();
     }
 

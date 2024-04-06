@@ -1,5 +1,6 @@
 package com.example.multiplayerhangman;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -17,13 +18,14 @@ public class TurnManager {
     }
 
     public void displayPlayersInQueue() {
-
-        System.out.print("Players currently in queue : ");
+        System.out.print("Players currently in queue: ");
 
         if (playerQueue.isEmpty()) {
             System.out.print("---");
         } else {
-            this.playerQueue.forEach(player -> System.out.print(player.getId() + ". " + player.getName() + "  "));
+            playerQueue.stream()
+                    .sorted(Comparator.comparing(player -> player.getId()))
+                    .forEach(player -> System.out.print(player.getId() + ". " + player.getName() + "  "));
         }
 
         System.out.println();
