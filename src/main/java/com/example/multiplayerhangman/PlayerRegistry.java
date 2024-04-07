@@ -3,44 +3,58 @@ package com.example.multiplayerhangman;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class PlayerRegistry {
 
-    private final Logger log = LoggerFactory.getLogger(PlayerRegistry.class);
+    private final Logger logger = LoggerFactory.getLogger(PlayerRegistry.class);
+    private final Scanner scanner = new Scanner(System.in);
 
     private Set<Player> players = new HashSet<>();
     private int playerIndex = 0;
 
-    public boolean registerPlayer(String name) {
+    public boolean performRegistration() {
 
-        if (isPlayerRegistered(name)) {
+        boolean registered;
 
-            return false;
+        System.out.println("***Enter name for player " + (getPlayerIndex() + 1) + ", or enter -1" + " to cancel :");
+        String name = scanner.nextLine();
+
+        if (name.equals("-1") || isPlayerRegistered(name)) {
+            logger.error("Player '{}' not registered.", name);
+            return registered = false;
         }
 
-        Player player = new Player(name);
-        player.setId(this.playerIndex);
-        players.add(player);
+        registerPlayer(name);
 
-        playerIndex++;
-        return true;
+        logger.info("Player '{}' registered successfully with registry.", name);
+
+        return registered = true;
     }
 
-    public boolean unregisterPlayer(int playerId) {
+    public boolean performDeRegistration() {
 
-        Optional<Player> playerOptional = players.stream()
-                                                .filter(player -> player.getId() == playerId)
-                                                .findFirst();
-        if (playerOptional.isPresent()) {
-            players.remove(playerOptional.get());
-            return true;
+        boolean deRegistered;
+
+        if (getPlayers().size() == 0) {
+            System.out.println("No registered players.");
+            return deRegistered = false;
+        }
+        System.out.println("***Enter a player id to be deleted :");
+        displayPlayerNames();
+
+        try {
+            int playerId = Integer.parseInt(scanner.nextLine());
+            deRegisterPlayer(playerId);
+
+            logger.info("Player '{}' de-registered successfully with registry.", playerId);
+
+        } catch (NumberFormatException e) {
+            logger.error("Invalid input. Please enter a valid option.");
+            return deRegistered = false;
         }
 
-        return false;
+        return deRegistered = true;
     }
 
     public void displayPlayerNames() {
@@ -68,6 +82,26 @@ public class PlayerRegistry {
                 .filter(player -> player.getId() == playerId)
                 .findFirst()
                 .orElse(null);
+    }
+
+    private void registerPlayer(String name) {
+
+        Player player = new Player(name);
+        player.setId(this.playerIndex);
+        players.add(player);
+
+        this.playerIndex++;
+    }
+
+    private void deRegisterPlayer(int playerId) {
+        Optional<Player> playerOptional = players.stream()
+                .filter(player -> player.getId() == playerId)
+                .findFirst();
+
+        if (playerOptional.isPresent()) {
+            players.remove(playerOptional.get());
+            this.playerIndex--;
+        }
     }
 
     // getters setters

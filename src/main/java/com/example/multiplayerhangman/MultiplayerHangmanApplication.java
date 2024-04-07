@@ -21,118 +21,87 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 		SpringApplication.run(MultiplayerHangmanApplication.class, args);
 	}
 
+
+	@Override
+	public void run(String... args) throws Exception {
+
+		displayMainMenu();
+	}
+
 	private void displayMainMenu() {
 
-		int option = -1;
-
 		do {
+			printMainMenu();
 			try {
-				System.out.println("-----------------------------------------");
-				System.out.println("Welcome to the Multi-player Hangman Game!");
-				System.out.println("-----------------------------------------");
-				System.out.println("1. Register/Un-Register Player");
-				System.out.println("2. Start Game");
-				System.out.println("3. Exit");
-
-				option = Integer.parseInt(scanner.nextLine());
+				int option = Integer.parseInt(scanner.nextLine());
+				switch (option) {
+					case 1:
+						displayRegistrationMenu();
+						break;
+					case 2:
+						if (playerRegistry.getPlayers().size() < 2) {
+							logger.error("You need at least a player to start the game");
+						} else {
+							startGame();
+						}
+						break;
+					case 3:
+						System.out.println("Exiting game...");
+						System.exit(0);
+						break;
+					default:
+						break;
+				}
 			} catch (NumberFormatException e) {
 				logger.error("Invalid input. Please enter a valid option.");
-				continue;
 			}
+		} while (true);
+	}
 
-			switch (option) {
-				case 1:
-					displayRegistrationMenu();
-					break;
-				case 2:
-					if (playerRegistry.getPlayers().size() < 2) {
-						logger.error("You need at least a player to start the game");
-						option = -1;
-					} else {
-						startGame();
-					}
-					break;
-				case 3:
-					System.out.println("Exiting game...");
-					System.exit(0);
-					break;
-				default:
-					break;
-			}
-		} while (option < 1 || option > 3);
+	private void printMainMenu() {
+		System.out.println("-----------------------------------------");
+		System.out.println("Welcome to the Multi-player Hangman Game!");
+		System.out.println("-----------------------------------------");
+		System.out.println("1. Register/Un-Register Player");
+		System.out.println("2. Start Game");
+		System.out.println("3. Exit");
 	}
 
 	private void displayRegistrationMenu() {
-
-		int option = -1;
-
 		do {
+			printRegistrationMenu();
 			try {
-				System.out.println("-------------------");
-				System.out.println("Player Registration");
-				System.out.println("1. Register Player");
-				System.out.println("2. Un-Register Player");
-				System.out.println("3. View Registered Players");
-				System.out.println("4. Back");
-
-				// Parse user input and handle potential NumberFormatException
-				option = Integer.parseInt(scanner.nextLine());
+				int option = Integer.parseInt(scanner.nextLine());
+				switch (option) {
+					case 1:
+						playerRegistry.performRegistration();
+						break;
+					case 2:
+						playerRegistry.performDeRegistration();
+						break;
+					case 3:
+						playerRegistry.displayPlayerNames();
+						break;
+					case 4:
+						displayMainMenu();
+						break;
+					default:
+						logger.error("Invalid input. Please enter a valid option.");
+						break;
+				}
 			} catch (NumberFormatException e) {
 				logger.error("Invalid input. Please enter a valid option.");
-				continue;
 			}
+		} while (true);
+	}
 
-			switch (option) {
-				case 1:
-					System.out.println(String.format("***Enter name for player %s, or enter -1 to cancel :  ", playerRegistry.getPlayerIndex()));
-					String name = scanner.nextLine();
-
-					if (name.equals("-1")) {
-						break;
-					}
-					boolean registered = playerRegistry.registerPlayer(name);
-
-					if (registered) {
-						logger.info("Player '{}' registered successfully with registry.", name);
-					} else {
-						logger.info("Player '{}' not registered.", name);
-					}
-					option = -1;
-					break;
-				case 2:
-					System.out.println("***Enter a player id to be deleted :");
-					playerRegistry.displayPlayerNames();
-
-					try {
-						int playerId = Integer.parseInt(scanner.nextLine());
-						boolean unregistered = playerRegistry.unregisterPlayer(playerId);
-
-						if (unregistered) {
-							logger.info("Player '{}' un-registered successfully with registry.", playerId);
-						} else {
-							logger.info("Player '{}' not un-registered.", playerId);
-						}
-						option = -1;
-						break;
-					} catch (NumberFormatException e) {
-						logger.error("Invalid input. Please enter a valid option.");
-						option = -1;
-						break;
-					}
-				case 3:
-					playerRegistry.displayPlayerNames();
-					option = -1;
-					break;
-				case 4:
-					displayMainMenu();
-					break;
-				default:
-					break;
-
-			}
-
-		} while (option < 1 || option > 3);
-
+	private void printRegistrationMenu() {
+		System.out.println("-------------------");
+		System.out.println("Player Registration");
+		System.out.println("1. Register Player");
+		System.out.println("2. Un-Register Player");
+		System.out.println("3. View Registered Players");
+		System.out.println("4. Back");
 	}
 
 	private void startGame() {
@@ -219,10 +188,5 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 		return input;
 	}
 
-	@Override
-	public void run(String... args) throws Exception {
-
-		displayMainMenu();
-	}
 
 }
