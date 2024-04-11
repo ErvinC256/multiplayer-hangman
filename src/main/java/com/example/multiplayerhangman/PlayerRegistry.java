@@ -11,53 +11,60 @@ public class PlayerRegistry {
     private final Scanner scanner = new Scanner(System.in);
 
     private Set<Player> players = new HashSet<>();
-    private int playerIndex = 0;
+    private int currentPlayerIndex = 0;
 
     public boolean performRegistration() {
 
-        boolean registered;
-
-        System.out.println("***Enter name for player " + (getPlayerIndex() + 1) + ", or enter -1" + " to cancel :");
+        System.out.println(
+                "***Enter name for player " + (getCurrentPlayerIndex() + 1) + ", or enter -1" + " to cancel :");
         String name = scanner.nextLine();
 
-        if (name.equals("-1") || isPlayerRegistered(name)) {
-            logger.error("Player '{}' not registered.", name);
-            return registered = false;
+        if (name.equals("-1")) {
+            return false;
+        }
+
+        if (isPlayerRegistered(name)) {
+            logger.error("Player '{}' not registered", name);
+            return false;
         }
 
         registerPlayer(name);
 
-        logger.info("Player '{}' registered successfully with registry.", name);
+        logger.info("Player '{}' registered successfully", name);
 
-        return registered = true;
+        return false;
     }
 
     public boolean performDeRegistration() {
 
-        boolean deRegistered;
-
         if (getPlayers().size() == 0) {
-            System.out.println("No registered players.");
-            return deRegistered = false;
+            logger.error("No registered players");
+            return false;
         }
         System.out.println("***Enter a player id to be deleted :");
-        displayPlayerNames();
+        displayRegisteredPlayers();
 
         try {
             int playerId = Integer.parseInt(scanner.nextLine());
+
+            if (playerId < 0 || playerId > this.currentPlayerIndex) {
+                logger.error("Out of bound");
+                return false;
+            }
             deRegisterPlayer(playerId);
 
-            logger.info("Player '{}' de-registered successfully with registry.", playerId);
+            logger.info("Player '{}' de-registered successfully with registry", playerId);
 
         } catch (NumberFormatException e) {
-            logger.error("Invalid input. Please enter a valid option.");
-            return deRegistered = false;
+            logger.error("Invalid input. Please enter a valid option");
+            return false;
         }
 
-        return deRegistered = true;
+        currentPlayerIndex--;
+        return true;
     }
 
-    public void displayPlayerNames() {
+    public void displayRegisteredPlayers() {
 
         System.out.println("Registered players : ");
 
@@ -66,31 +73,24 @@ public class PlayerRegistry {
         } else {
             players.stream()
                     .sorted(Comparator.comparing(player -> player.getId()))
-                    .forEach(player -> System.out.print(String.valueOf(player.getId()) + ". " + player.getName() + "  "));
+                    .forEach(player -> System.out
+                            .print(String.valueOf(player.getId()) + ". " + player.getName() + "  "));
         }
         System.out.println();
     }
 
-    public boolean isPlayerRegistered(String name) {
+    private boolean isPlayerRegistered(String name) {
 
         return players.stream().anyMatch(player -> player.getName().equals(name));
-    }
-
-    public Player getPlayer(int playerId) {
-
-        return players.stream()
-                .filter(player -> player.getId() == playerId)
-                .findFirst()
-                .orElse(null);
     }
 
     private void registerPlayer(String name) {
 
         Player player = new Player(name);
-        player.setId(this.playerIndex);
+        player.setId(this.currentPlayerIndex);
         players.add(player);
 
-        this.playerIndex++;
+        this.currentPlayerIndex++;
     }
 
     private void deRegisterPlayer(int playerId) {
@@ -100,7 +100,7 @@ public class PlayerRegistry {
 
         if (playerOptional.isPresent()) {
             players.remove(playerOptional.get());
-            this.playerIndex--;
+            this.currentPlayerIndex--;
         }
     }
 
@@ -113,12 +113,11 @@ public class PlayerRegistry {
         this.players = players;
     }
 
-    public int getPlayerIndex() {
-        return playerIndex;
+    public int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
     }
 
-    public void setPlayerIndex(int playerIndex) {
-        this.playerIndex = playerIndex;
+    public void setCurrentPlayerIndex(int currentPlayerIndex) {
+        this.currentPlayerIndex = currentPlayerIndex;
     }
 }
-

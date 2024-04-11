@@ -29,7 +29,6 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 	}
 
 	private void displayMainMenu() {
-
 		do {
 			printMainMenu();
 			try {
@@ -50,10 +49,11 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 						System.exit(0);
 						break;
 					default:
+						logger.error("Out of bound");
 						break;
 				}
 			} catch (NumberFormatException e) {
-				logger.error("Invalid input. Please enter a valid option.");
+				logger.error("Invalid input. Please enter a valid option");
 			}
 		} while (true);
 	}
@@ -62,7 +62,7 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 		System.out.println("-----------------------------------------");
 		System.out.println("Welcome to the Multi-player Hangman Game!");
 		System.out.println("-----------------------------------------");
-		System.out.println("1. Register/Un-Register Player");
+		System.out.println("1. Register/De-Register Player");
 		System.out.println("2. Start Game");
 		System.out.println("3. Exit");
 	}
@@ -80,17 +80,17 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 						playerRegistry.performDeRegistration();
 						break;
 					case 3:
-						playerRegistry.displayPlayerNames();
+						playerRegistry.displayRegisteredPlayers();
 						break;
 					case 4:
 						displayMainMenu();
 						break;
 					default:
-						logger.error("Invalid input. Please enter a valid option.");
+						logger.error("Out of bound");
 						break;
 				}
 			} catch (NumberFormatException e) {
-				logger.error("Invalid input. Please enter a valid option.");
+				logger.error("Invalid input. Please enter a valid option");
 			}
 		} while (true);
 	}
@@ -110,7 +110,9 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 		System.out.println("---Guessing game has started---");
 		System.out.println("-------------------------------");
 
-		assignPlayers();
+		playerRegistry.displayRegisteredPlayers();
+		turnManager.performPlayerAssignment(playerRegistry.getPlayers());
+		turnManager.displayPlayersInQueue();
 
 		System.out.println("-------------------------------");
 
@@ -148,24 +150,6 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 		displayScoreBoard(turnManager.getPlayerQueue());
 	}
 
-	private void assignPlayers() {
-
-		int numPlayersToBeAssigned = playerRegistry.getPlayers().size();
-
-		playerRegistry.displayPlayerNames();
-
-		for (int i = 0; i < numPlayersToBeAssigned; i++) {
-
-			System.out.print("**Choose a player index : ");
-			int id = Integer.parseInt(scanner.nextLine());
-
-			Player player = playerRegistry.getPlayer(id);
-			turnManager.addPlayerToQueue(player);
-		}
-
-		turnManager.displayPlayersInQueue();
-	}
-
 	private void displayScoreBoard(Queue<Player> playerQueue) {
 		System.out.println("***ScoreBoard***");
 
@@ -177,16 +161,5 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 					+ " and wrong count of " + player.getWrongCount());
 		}
 	}
-
-	private int getValidInput() {
-		int input = Integer.MIN_VALUE;
-		try {
-			input = Integer.parseInt(scanner.nextLine());
-		} catch (NumberFormatException e) {
-			logger.error("Invalid input. Please enter a valid number.");
-		}
-		return input;
-	}
-
 
 }

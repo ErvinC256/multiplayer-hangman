@@ -1,20 +1,41 @@
 package com.example.multiplayerhangman;
 
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.Queue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 public class TurnManager {
 
+    private final Logger logger = LoggerFactory.getLogger(PlayerRegistry.class);
+    private final Scanner scanner = new Scanner(System.in);
+
     private Queue<Player> playerQueue = new LinkedList<>();
 
-    public boolean addPlayerToQueue(Player player) {
+    public boolean performPlayerAssignment(Set<Player> players) {
+        int numPlayersToBeAssigned = players.size();
 
-        if (playerQueue.stream().anyMatch(p -> p.getId() == player.getId())) {
-            return false;
-        } else {
-            return playerQueue.offer(player);
+        for (int i = 0; i < numPlayersToBeAssigned; ) {
+            try {
+                System.out.print("**Enter a player id: ");
+                int playerId = Integer.parseInt(scanner.nextLine());
+
+                if (playerId < 0 || playerId > players.size()) {
+                    logger.error("Out of bound");
+                    continue;
+                }
+                Optional<Player> playerOptional = players.stream().filter(player -> player.getId() == playerId).findFirst();
+
+                if (playerOptional.isPresent()) {
+                    Player player = playerOptional.get();
+                    addPlayerToQueue(player);
+                }
+            } catch (NumberFormatException e) {
+                logger.error("Invalid input. Please enter a valid option");
+            }
+            i++;
         }
+        return true;
     }
 
     public void displayPlayersInQueue() {
@@ -31,7 +52,16 @@ public class TurnManager {
         System.out.println();
     }
 
-    public void resetQueue() {
+    private boolean addPlayerToQueue(Player player) {
+
+        if (playerQueue.stream().anyMatch(p -> p.getId() == player.getId())) {
+            return false;
+        } else {
+            return playerQueue.offer(player);
+        }
+    }
+
+    private void resetQueue() {
         playerQueue.clear();
     }
 
