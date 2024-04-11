@@ -7,6 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @SpringBootApplication
 public class MultiplayerHangmanApplication implements CommandLineRunner {
@@ -116,36 +117,45 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 
 		System.out.println("-------------------------------");
 
-		Player firstPlayer = turnManager.getPlayerQueue().poll();
-		System.out.println(String.format("**Please suggest a word, %s : ", firstPlayer.getName()));
-		String word = scanner.nextLine();
+		int numOfPlayerInQueue = turnManager.getPlayerQueue().size();
 
-		boolean wordHasBeenRevealed = false;
+		for (int i = 0; i < numOfPlayerInQueue; i++) {
+			Player firstPlayer = turnManager.getPlayerQueue().poll();
+			Queue<Player> guessPlayerQueue = new LinkedList<>(turnManager.getPlayerQueue().stream()
+					.filter(player -> player.getId() != firstPlayer.getId())
+					.collect(Collectors.toList()));
 
-		while (!wordHasBeenRevealed) {
-			Player currentPlayer = turnManager.getPlayerQueue().poll();
-			System.out.println(String.format("**Please guess a number, %s : ", currentPlayer.getName()));
-			char character = scanner.nextLine().charAt(0);
+			System.out.println(String.format("**Please suggest a word, %s : ", firstPlayer.getName()));
+			String word = scanner.nextLine();
 
-			if (word.indexOf(character) != -1) {
-				word = word.chars()
-						.mapToObj(c -> (char) c == character ? '#' : (char) c)
-						.collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
-						.toString();
-				currentPlayer.incrementCorrectCount();
-			} else {
-				currentPlayer.incrementWrongCount();
+			boolean wordHasBeenRevealed = false;
+
+			while (!wordHasBeenRevealed) {
+				Player currentPlayer = guessPlayerQueue.poll();
+				System.out.println(String.format("**Please guess a number, %s : ", currentPlayer.getName()));
+				char character = scanner.nextLine().charAt(0);
+
+				if (word.indexOf(character) != -1) {
+					word = word.chars()
+							.mapToObj(c -> (char) c == character ? '#' : (char) c)
+							.collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
+							.toString();
+					currentPlayer.incrementCorrectCount();
+				} else {
+					currentPlayer.incrementWrongCount();
+				}
+
+				System.out.println(word);
+
+				long numOfHash = word.chars().filter(c -> c == '#').count();
+				wordHasBeenRevealed = numOfHash == word.length();
+
+				guessPlayerQueue.offer(currentPlayer);
 			}
+			System.out.println("The word has been revealed!");
 
-			System.out.println(word);
-
-			long numOfHash = word.chars().filter(c -> c == '#').count();
-			wordHasBeenRevealed = numOfHash == word.length();
-
-			turnManager.getPlayerQueue().offer(currentPlayer);
+			turnManager.getPlayerQueue().offer(firstPlayer);
 		}
-
-		System.out.println("The word has been revealed!");
 
 		displayScoreBoard(turnManager.getPlayerQueue());
 	}
