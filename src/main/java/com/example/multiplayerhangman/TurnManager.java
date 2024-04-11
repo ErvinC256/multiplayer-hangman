@@ -31,7 +31,7 @@ public class TurnManager {
                     addPlayerToQueue(player);
                 }
             } catch (NumberFormatException e) {
-                logger.error("Invalid input. Please enter a valid option");
+                logger.error("Invalid input");
             }
             i++;
         }

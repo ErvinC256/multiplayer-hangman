@@ -54,7 +54,7 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 						break;
 				}
 			} catch (NumberFormatException e) {
-				logger.error("Invalid input. Please enter a valid option");
+				logger.error("Invalid input");
 			}
 		} while (true);
 	}
@@ -91,7 +91,7 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 						break;
 				}
 			} catch (NumberFormatException e) {
-				logger.error("Invalid input. Please enter a valid option");
+				logger.error("Invalid input");
 			}
 		} while (true);
 	}
@@ -157,19 +157,42 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 			turnManager.getPlayerQueue().offer(firstPlayer);
 		}
 
-		displayScoreBoard(turnManager.getPlayerQueue());
+		Player[] playerArray = turnManager.getPlayerQueue().toArray(new Player[0]);
+		displayScoreBoard(playerArray);
 	}
 
-	private void displayScoreBoard(Queue<Player> playerQueue) {
+	private void displayScoreBoard(Player[] arr) {
 		System.out.println("***ScoreBoard***");
 
-		int queueSize = playerQueue.size();
+		Player[] sortedArr = selectionSortPlayerByDescCorrectCount(arr);
+	}
 
-		for (int i = 0; i < queueSize; i++) {
-			Player player = playerQueue.poll();
-			System.out.println(player.getName() + " has correct count of " + player.getCorrectCount()
-					+ " and wrong count of " + player.getWrongCount());
+	private Player[] selectionSortPlayerByDescCorrectCount(Player[] arr) {
+		int n = arr.length;
+
+		for (int i = 0; i < n - 1; i++) {
+			int maxIndex = i;
+			int maxCorrectCount = arr[i].getCorrectCount();
+			int maxWrongCount = arr[i].getWrongCount();
+
+			for (int j = i + 1; j < n; j++) {
+				int currentCorrectCount = arr[j].getCorrectCount();
+				int currentWrongCount = arr[j].getWrongCount();
+
+				if (currentCorrectCount > maxCorrectCount ||
+						(currentCorrectCount == maxCorrectCount && currentWrongCount < maxWrongCount)) {
+					maxIndex = j;
+				}
+			}
+
+			if (!maxIndex == i) {
+				Player temp = arr[i];
+				arr[i] = arr[maxIndex];
+				arr[maxIndex] = temp;
+			}
 		}
+
+		return arr;
 	}
 
 }

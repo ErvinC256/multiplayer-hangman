@@ -30,7 +30,7 @@ public class PlayerRegistry {
 
         registerPlayer(name);
 
-        logger.info("Player '{}' registered successfully", name);
+        logger.info("Player '{}' registered", name);
 
         return false;
     }
@@ -47,13 +47,13 @@ public class PlayerRegistry {
         try {
             int playerId = Integer.parseInt(scanner.nextLine());
 
-            if (playerId < 0 || playerId > this.currentPlayerIndex) {
+            if (playerId < 0 || playerId > this.currentPlayerIndex - 1) {
                 logger.error("Out of bound");
                 return false;
             }
             deRegisterPlayer(playerId);
 
-            logger.info("Player '{}' de-registered successfully with registry", playerId);
+            logger.info("Player '{}' de-registered", playerId);
 
         } catch (NumberFormatException e) {
             logger.error("Invalid input. Please enter a valid option");
