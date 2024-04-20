@@ -152,12 +152,14 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 				guessPlayerQueue.offer(currentPlayer);
 			}
 			System.out.println("The word has been revealed!");
+			Player[] playerArray = turnManager.getPlayerQueue().toArray(new Player[0]);
+			displayScoreBoard(playerArray);
 
 			turnManager.getPlayerQueue().offer(firstPlayer);
 		}
 
-		Player[] playerArray = turnManager.getPlayerQueue().toArray(new Player[0]);
-		displayScoreBoard(playerArray);
+//		Player[] playerArray = turnManager.getPlayerQueue().toArray(new Player[0]);
+//		displayScoreBoard(playerArray);
 	}
 
 	private void displayScoreBoard(Player[] arr) {

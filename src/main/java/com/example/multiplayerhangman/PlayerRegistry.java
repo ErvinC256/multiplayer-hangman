@@ -36,13 +36,14 @@ public class PlayerRegistry {
             logger.error("No registered players");
             return false;
         }
+
         System.out.println("**Enter a player id to be deleted, or enter -1 to cancel : ");
         displayRegisteredPlayers();
 
         try {
             int playerId = Integer.parseInt(scanner.nextLine());
 
-            if (playerId == -1) {
+            if (playerId == -1 || (playerId < 0 || playerId >= getPlayers().size())) {
                 return false;
             }
 
@@ -51,7 +52,7 @@ public class PlayerRegistry {
             logger.info("Player '{}' de-registered", playerId);
 
         } catch (NumberFormatException e) {
-            logger.error("Invalid input. Please enter a valid option");
+            logger.error("Invalid input");
             return false;
         }
 

@@ -3,6 +3,7 @@ package com.example.multiplayerhangman;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Array;
 import java.util.*;
 
 public class TurnManager {
@@ -13,8 +14,14 @@ public class TurnManager {
     private Queue<Player> playerQueue = new LinkedList<>();
 
     public void performPlayerAssignment(Set<Player> players) {
+        int numPlayersLeft = players.size();
 
-        do {
+        while (numPlayersLeft > 0) {
+
+            int[] playerIds = players.stream()
+                                        .mapToInt(player -> (int) player.getId())
+                                        .toArray();
+
             try {
                 System.out.print("**Enter a player id, or enter -1 to cancel : ");
                 int playerId = Integer.parseInt(scanner.nextLine());
@@ -23,21 +30,27 @@ public class TurnManager {
                     break;
                 }
 
-                boolean playerFound = false;
+                if (playerId < 0 || !Arrays.stream(playerIds).anyMatch(id -> id == playerId)) {
+                    continue;
+                }
+
                 for (Player player : players) {
                     if (player.getId() == playerId) {
                         addPlayerToQueue(player);
-                        playerFound = true;
                         logger.info("Player '{}' queued ", player.getId());
+
+                        players.remove(player);
                         break;
                     }
                 }
+
+                numPlayersLeft--;
 
             } catch (NumberFormatException e) {
                 logger.error("Invalid input");
             }
 
-        } while (true);
+        }
     }
 
     public void displayPlayersInQueue() {
@@ -47,8 +60,7 @@ public class TurnManager {
             System.out.print("---");
         } else {
             playerQueue.stream()
-                    .sorted(Comparator.comparing(player -> player.getId()))
-                    .forEach(player -> System.out.print(player.getId() + ". " + player.getName() + "  "));
+                        .forEach(player -> System.out.print(player.getId() + ". " + player.getName() + "  "));
         }
 
         System.out.println();
