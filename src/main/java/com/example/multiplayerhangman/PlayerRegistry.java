@@ -16,15 +16,10 @@ public class PlayerRegistry {
     public boolean performRegistration() {
 
         System.out.println(
-                "***Enter name for player " + (getCurrentPlayerIndex() + 1) + ", or enter -1" + " to cancel :");
+                "**Enter name for player " + (getCurrentPlayerIndex() + 1) + ", or enter -1 to cancel : ");
         String name = scanner.nextLine();
 
-        if (name.equals("-1")) {
-            return false;
-        }
-
-        if (isPlayerRegistered(name)) {
-            logger.error("Player '{}' not registered", name);
+        if (name.equals("-1") || isPlayerRegistered(name)) {
             return false;
         }
 
@@ -32,7 +27,7 @@ public class PlayerRegistry {
 
         logger.info("Player '{}' registered", name);
 
-        return false;
+        return true;
     }
 
     public boolean performDeRegistration() {
@@ -41,16 +36,16 @@ public class PlayerRegistry {
             logger.error("No registered players");
             return false;
         }
-        System.out.println("***Enter a player id to be deleted :");
+        System.out.println("**Enter a player id to be deleted, or enter -1 to cancel : ");
         displayRegisteredPlayers();
 
         try {
             int playerId = Integer.parseInt(scanner.nextLine());
 
-            if (playerId < 0 || playerId > this.currentPlayerIndex - 1) {
-                logger.error("Out of bound");
+            if (playerId == -1) {
                 return false;
             }
+
             deRegisterPlayer(playerId);
 
             logger.info("Player '{}' de-registered", playerId);

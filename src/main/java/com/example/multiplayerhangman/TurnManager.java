@@ -12,34 +12,36 @@ public class TurnManager {
 
     private Queue<Player> playerQueue = new LinkedList<>();
 
-    public boolean performPlayerAssignment(Set<Player> players) {
-        int numPlayersToBeAssigned = players.size();
+    public void performPlayerAssignment(Set<Player> players) {
 
-        for (int i = 0; i < numPlayersToBeAssigned; ) {
+        do {
             try {
-                System.out.print("**Enter a player id: ");
+                System.out.print("**Enter a player id, or enter -1 to cancel : ");
                 int playerId = Integer.parseInt(scanner.nextLine());
 
-                if (playerId < 0 || playerId > players.size()) {
-                    logger.error("Out of bound");
-                    continue;
+                if (playerId == -1) {
+                    break;
                 }
-                Optional<Player> playerOptional = players.stream().filter(player -> player.getId() == playerId).findFirst();
 
-                if (playerOptional.isPresent()) {
-                    Player player = playerOptional.get();
-                    addPlayerToQueue(player);
+                boolean playerFound = false;
+                for (Player player : players) {
+                    if (player.getId() == playerId) {
+                        addPlayerToQueue(player);
+                        playerFound = true;
+                        logger.info("Player '{}' queued ", player.getId());
+                        break;
+                    }
                 }
+
             } catch (NumberFormatException e) {
                 logger.error("Invalid input");
             }
-            i++;
-        }
-        return true;
+
+        } while (true);
     }
 
     public void displayPlayersInQueue() {
-        System.out.print("Players currently in queue: ");
+        System.out.print("Players currently in queue : ");
 
         if (playerQueue.isEmpty()) {
             System.out.print("---");

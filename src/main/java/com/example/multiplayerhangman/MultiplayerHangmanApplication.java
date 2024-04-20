@@ -22,7 +22,6 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 		SpringApplication.run(MultiplayerHangmanApplication.class, args);
 	}
 
-
 	@Override
 	public void run(String... args) throws Exception {
 
@@ -185,7 +184,7 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 				}
 			}
 
-			if (!maxIndex == i) {
+			if (maxIndex != i) {
 				Player temp = arr[i];
 				arr[i] = arr[maxIndex];
 				arr[maxIndex] = temp;
