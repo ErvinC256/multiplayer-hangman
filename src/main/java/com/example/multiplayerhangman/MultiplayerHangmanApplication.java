@@ -49,7 +49,6 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 						System.exit(0);
 						break;
 					default:
-						logger.error("Out of bound");
 						break;
 				}
 			} catch (NumberFormatException e) {
@@ -86,7 +85,6 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 						displayMainMenu();
 						break;
 					default:
-						logger.error("Out of bound");
 						break;
 				}
 			} catch (NumberFormatException e) {
@@ -98,6 +96,7 @@ public class MultiplayerHangmanApplication implements CommandLineRunner {
 	private void printRegistrationMenu() {
 		System.out.println("-------------------");
 		System.out.println("Player Registration");
+		System.out.println("-------------------");
 		System.out.println("1. Register Player");
 		System.out.println("2. Un-Register Player");
 		System.out.println("3. View Registered Players");
